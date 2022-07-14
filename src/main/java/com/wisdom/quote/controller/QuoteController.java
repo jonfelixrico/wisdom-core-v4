@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.wisdom.controller.quote;
+package com.wisdom.quote.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

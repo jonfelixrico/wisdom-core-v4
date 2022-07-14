@@ -1,4 +1,4 @@
-package com.wisdom.controller.quote;
+package com.wisdom.quote.controller;
 
 /**
  * 
