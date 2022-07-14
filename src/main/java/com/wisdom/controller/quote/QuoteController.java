@@ -21,7 +21,12 @@ public class QuoteController {
 	}
 	
 	@PostMapping("/guild/{guildId}/quotes/{quoteId}/receives")
-	void receiveQuote(@RequestBody QuoteReceiveReqDto body) throws Exception {
+	void receiveQuote(@RequestBody QuoteReceiveReqDto body, @PathVariable String guildId, @PathVariable String quoteId) throws Exception {
+		throw new Exception("noop");
+	}
+	
+	@PostMapping("/guild/{guildId}/quotes")
+	void submitQuote(@RequestBody QuoteReqDto body, @PathVariable String guildId) throws Exception {
 		throw new Exception("noop");
 	}
 }
