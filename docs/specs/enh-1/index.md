@@ -49,3 +49,67 @@ are no quotes in the server which can be received.
 Same action as `/submit`.
 
 ## Physical design
+
+### Core module
+
+We'll be introducing the following webservices:
+* `POST /quote` - submit quote
+* `GET /quote/random` - get a random quote
+* `POST /quote/{quoteId}/receive` - record the receive of a quote
+
+#### `POST /quote`
+##### Request body
+```ts
+{
+    content: string
+    authorId: string
+    submitterId: string // the user who submitted the quote
+
+    serverId: string
+    channelId: string
+}
+```
+
+##### Response body
+```ts
+{
+    id: string
+    
+    content: string
+    authorId: string
+    submitDt: Date
+}
+```
+
+#### `GET /quote/random`
+
+##### Request body
+None.
+
+##### Response body
+Same response body as `POST /quote`.
+
+#### `POST /quote/{quoteId}/receive`
+##### Request body
+```ts
+{
+    quoteId: string
+    receiverId: string
+
+    serverId: string
+    channelId: string
+}
+```
+
+##### Response body
+```ts
+{
+    id: string
+
+    quoteId: string
+    receiveDt: string
+    receiverId: string
+}
+```
+
+### Bot module
