@@ -53,11 +53,14 @@ Same action as `/submit`.
 ### Core
 
 ### Bot
+
+We'll be relying on Discord's slash commands API for the responses. We don't really need to send a message directly into the channel.
 #### Submitting a quote
 ##### On success
 ![Success](enh-1/submit-success.png)
 
 ##### On error
+Note: this should only be visible to the user. Please refer to [Discord's ephemeral messages](https://support.discord.com/hc/en-us/articles/1500000580222-Ephemeral-Messages-FAQ).  
 ![Error](enh-1/quote-submit-error.png)
 
 #### Receiving a quote
@@ -66,9 +69,11 @@ Same action as `/submit`.
 ![Success](enh-1/quote-receive-success.png)
 
 ##### On error
+Note: this should only be visible to the user.  
 ![Error](enh-1/quote-receive-error.png)
 
 ##### No quote found
+Note: this should only be visible to the user.  
 ![No quote](enh-1/quote-receive-no-quote.png)
 
 ### Webservices
