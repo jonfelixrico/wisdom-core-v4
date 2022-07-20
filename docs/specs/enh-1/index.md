@@ -50,8 +50,11 @@ Same action as `/submit`.
 
 ## Physical design
 
-### Core module
+### Core
 
+### Bot
+
+### Webservices
 We'll be introducing the following webservices:
 * `POST /quote` - submit quote
 * `GET /quote/random` - get a random quote
@@ -111,5 +114,3 @@ Same response body as `POST /quote`.
     receiverId: string
 }
 ```
-
-### Bot module
