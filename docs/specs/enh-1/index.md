@@ -53,6 +53,23 @@ Same action as `/submit`.
 ### Core
 
 ### Bot
+#### Submitting a quote
+##### On success
+![Success](enh-1/submit-success.png)
+
+##### On error
+![Error](enh-1/quote-submit-error.png)
+
+#### Receiving a quote
+
+##### On success
+![Success](enh-1/quote-receive-success.png)
+
+##### On error
+![Error](enh-1/quote-receive-error.png)
+
+##### No quote found
+![No quote](enh-1/quote-receive-no-quote.png)
 
 ### Webservices
 We'll be introducing the following webservices:
