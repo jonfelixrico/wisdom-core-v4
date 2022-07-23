@@ -5,9 +5,6 @@ For saving the business data, we're going to be making use of event sourcing pat
 
 ### Aggregates
 
-Aggregates in the code represents domain or business models. We want to follow the **rich domain model** pattern for this. Having a rich domain model means that we do our domain operations inside
-domain classes (aggregates).
-
 Aggregate classes in the code are mapped to business models. For our implementation, we want to observe the rich domain model pattern.
 
 The rich domain pattern, in a nutshell, dictates that the base aggregate class should contain only domain-related logic and fields. No database-related code should be contained within.
