@@ -45,6 +45,23 @@ Aside from representing a quote, this aggregate covers quote-reciving business p
 
 The aggregate id of this object should follow the format of `quote-{quoteId}`.
 
+
+#### Receive (`ReceiveAggregate`)
+```ts
+interface ReceiveAggregate {
+    id: string // id of the receive
+    quoteId: string
+    userId: string // receiver of the quote
+    createDt: string // time of receiving
+
+    serverId: string
+    channelId: string
+}
+```
+This aggregate will contain no action as there are no business processes under the receive aggregate.
+
+The format of the aggregate id will be `receive-{receiveId}`.
+
 ### Business processes covered
 #### Quote submission
 The quote-submission business process is done via the `ServerAggregate#submitQuote` method.
@@ -71,3 +88,18 @@ interface QuoteCreatedEvent {
     payload: ObjectContainingQuoteAggregateProperties
 }
 ```
+
+#### Receiving quotes 
+The quote-receiving process is done via the `QuoteAggregate#receiveQuote` object.
+
+This method being called will do two things:
+
+The `QUOTE_RECEIVED` event will be appended to the quote aggregate. Please refer below for the schema of the payload:
+
+```ts
+interface QuoteReceivedEventPayload {
+    receiveId: string
+}
+```
+
+The `RECEIVE_CREATED` event will be appended to the receive aggregate. The schema of the payload should have the same attributes as the `ReceiveAggregate`.
