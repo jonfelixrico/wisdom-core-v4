@@ -8,11 +8,16 @@ For saving the business data, we're going to be making use of event sourcing pat
 Aggregates in the code represents domain or business models. We want to follow the **rich domain model** pattern for this. Having a rich domain model means that we do our domain operations inside
 domain classes (aggregates).
 
-#### First layer -- contains domain-related code only
-The first layer is the foundation of the aggregate object. This should be an abstract class and it should contain the necessary fields to represent a business object and the necessary
-methods which represent business processes. The validations required for the business process should also be contained within the methods representing them.
+Aggregate classes in the code are mapped to business models. For our implementation, we want to observe the rich domain model pattern.
 
-By domain-related code only, we mean that there shouldn't be any database-specific fields present or anything not related to the domain.
+The rich domain pattern, in a nutshell, dictates that the base aggregate class should contain only domain-related logic and fields. No database-related code should be contained within.
+
+In this case, we want to extend the base aggregate class to inject in the database-related code. For our case, that's the class where we inject database-related code like the event stack
+and the version tracker/counter. More on this later.
+
+#### The base aggregate
+The base aggregate should contain only code related to the business logic (BL). This means that it should contain only fields relevant to the domain, and the methods that it has should be mapped to the
+business processes for the model. In those methods, we're also to implement there any related validation logic that only makes use of BL-related data.
 
 When implementing it in the code, please make sure to observe the following:
 * Follow the naming format of `{DomainModelName}Aggregate` when naming the class
@@ -25,6 +30,7 @@ We can flip to the next or the previous page. We should take note that we can't 
 
 ```ts
 abstract class BookAggregate {
+    id: string
     pageCount: number // non-zero positive integer
     pageNo: number // 1 to pageCount
 
@@ -45,7 +51,51 @@ abstract class BookAggregate {
     }
 }
 ```
-### Second layer -- the database mixed in
+### Extended aggregate
+We want to extend the base aggregate to make it play well with the database that we are using. Since we're using event sourcing, we want to store data via events.
+
+For extended aggregates, the extended class should also implement this interface:
+
+```ts
+interface DbAggregateEvent {
+    eventType: string
+    payload?: object
+}
+
+interface DbAggregate {
+    aggregateId: string
+    events: DbAggregateEvent[]
+    version: BigInt // the version of the aggregate snapshot
+}
+```
+
+For example, we extend our book aggregate to contain DB-related code.
+```ts
+class BookDbAggregate extends BookAggregate implements DbAggregate {
+    events: DbAggregateEvent[]
+    version: BigInt
+
+    get aggregateId () {
+        return `book-${super.id}`
+    }
+
+    flipToNextPage () {
+        super.flipToNextPage()
+        this.events.push({
+            eventType: 'FLIPPED_TO_NEXT_PAGE',
+            // no payload
+        })
+    }
+
+    flipToPrevPage () {
+        super.flipToPrevPage()
+        this.events.push({
+            eventType: 'FLIPPED_TO_PREV_PAGE',
+            // no payload
+        })
+    }
+}
+```
 
 
 ## Write side
