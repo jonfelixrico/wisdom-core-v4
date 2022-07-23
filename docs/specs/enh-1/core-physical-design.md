@@ -3,6 +3,51 @@
 ## Introduction
 For saving the business data, we're going to be making use of event sourcing pattern. The reason why we're making use of the **event sourcing pattern** is so that we can have more freedom as to how we will implement the read side. The downside of this approach is that it's more complicated to implement because there's extra effort needed to create the read and the write side of the data.
 
+### Aggregates
+
+Aggregates in the code represents domain or business models. We want to follow the **rich domain model** pattern for this. Having a rich domain model means that we do our domain operations inside
+domain classes (aggregates).
+
+#### First layer -- contains domain-related code only
+The first layer is the foundation of the aggregate object. This should be an abstract class and it should contain the necessary fields to represent a business object and the necessary
+methods which represent business processes. The validations required for the business process should also be contained within the methods representing them.
+
+By domain-related code only, we mean that there shouldn't be any database-specific fields present or anything not related to the domain.
+
+When implementing it in the code, please make sure to observe the following:
+* Follow the naming format of `{DomainModelName}Aggregate` when naming the class
+  * E.g. `CatAggregate`, `BookAggregate`
+* Make sure that it's an abstract class
+* Do the validations inside of the methods
+
+An example business object would be a Book. We are required to take note of the current page number in the book and the total number of pages in the book.
+We can flip to the next or the previous page. We should take note that we can't flip to the next or prev page if there are no more pages available.
+
+```ts
+abstract class BookAggregate {
+    pageCount: number // non-zero positive integer
+    pageNo: number // 1 to pageCount
+
+    flipToNextPage () {
+        if (pageNo === pageCount) { // last page -- no more page available
+            throw new NoNextPageException()
+        } else {
+            this.pageCount++;
+        }
+    }
+
+    flipToPrevPage () {
+        if (pageNo === 1) { // first page -- no prev page available
+            throw new NoPrevPageException()
+        } else {
+            this.pageCount--
+        }
+    }
+}
+```
+### Second layer -- the database mixed in
+
+
 ## Write side
 
 This section is the documentation for the read side of the data. We'll be creating aggregates to represent our buisiness objects (BO).
