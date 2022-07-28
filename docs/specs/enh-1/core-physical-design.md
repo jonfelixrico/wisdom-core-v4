@@ -8,70 +8,23 @@ We chose this pattern over a straightforward save-to-db approach is so that we c
 ## Write side
 This section will describe the aggregates that we'll be using for the read side.
 
-### Aggregate overview
-#### Server (`ServerAggregate`)
-
+### The server aggregate
 ```ts
 interface ServerAggregate {
     id: string
     // covers the quote creation business process
-    submitQuote(submitInput: SubmitInput): QuoteAggregate;
+    submitQuote(input: InputQuote): SavedQuote;
 }
 ```
 
-Primarily, the purpose of this aggregate is to spawn child quote aggregates.
+Not much can be said about the server aggregate. Since we don't really need much validation from it, we only need to know its id. Its aggregate id should follow this format: `server-{serverId}`.
 
-The aggregate id of this object should follow the format of: `server-{serverId}`.
-
-#### Quote (`QuoteAggregate`)
-
-```ts
-interface QuoteAggregate {
-    id: string
-    content: string
-    authorId: string
-    submitterId: string
-
-    createDt: string // yes, not `submitDt`
-
-    serverId: string
-    channelId: string
-
-    // covers the quote-receiving business process
-    receive(receiveData: ReceiveInput): Receive; // for now, receive will not be an aggregate
-}
-```
-
-Aside from representing a quote, this aggregate covers quote-reciving business process by exposing a receive method.
-
-The aggregate id of this object should follow the format of `quote-{quoteId}`.
-
-
-#### Receive (`ReceiveAggregate`)
-```ts
-interface ReceiveAggregate {
-    id: string // id of the receive
-    quoteId: string
-    userId: string // receiver of the quote
-    createDt: string // time of receiving
-
-    serverId: string
-    channelId: string
-}
-```
-This aggregate will contain no action as there are no business processes under the receive aggregate.
-
-The format of the aggregate id will be `receive-{receiveId}`.
-
-### Business processes covered
-#### Quote submission
-The quote-submission business process is done via the `ServerAggregate#submitQuote` method.
-
-For `ServerAggregate`, it should append the `SEVER_QUOTE_SUBMITTED` event in the server instance. The payload should only contain the id of the quote created, e.g.:
+#### submitQuote
+This method is tied to the business process where the user can submit a quote.
 
 ```ts
-interface ServerQuoteSubmittedEvent {
-    aggregateId: string // aggregate id, in this case the id of the server
+interface ServerSubmitQuoteEvent {
+    aggregateId: string // aggregate id of the server
     eventType: 'SERVER_QUOTE_SUBMITTED'
     payload: {
         quoteId: string
@@ -79,28 +32,67 @@ interface ServerQuoteSubmittedEvent {
 }
 ```
 
-For `QuoteAggregate`, it should append the `QUOTE_CREATED` event in the quote instance. Unlike `SERVER_QUOTE_SUBMITTED` which contains only the quote id, the payload
-should be similar to the body of `QuoteAggregate`.
-
 ```ts
 interface QuoteCreatedEvent {
-    aggregateId: string // aggregate id, in this case the id of the server
+    aggregateId: string // aggregate id of the quote
     eventType: 'QUOTE_CREATED'
-    payload: ObjectContainingQuoteAggregateProperties
+    payload: {
+        serverId: string
+        channelId: string
+
+        id: string
+        content: string
+        authorId: string
+        submitterId: string
+        createDt: Date
+    }
 }
 ```
 
-#### Receiving quotes 
-The quote-receiving process is done via the `QuoteAggregate#receiveQuote` object.
-
-This method being called will do two things:
-
-The `QUOTE_RECEIVED` event will be appended to the quote aggregate. Please refer below for the schema of the payload:
+### The quote aggregate
+The only purpose right now of the quote aggregate is to allow us to receive quotes. And thus, this is its structure:
 
 ```ts
-interface QuoteReceivedEventPayload {
-    receiveId: string
+interface QuoteAggregate {
+    id: string
+
+    // covers the quote-receiving business process
+    logReceive(receiveData: ReceiveInput): Receive; // for now, receive will not be an aggregate
 }
 ```
 
-The `RECEIVE_CREATED` event will be appended to the receive aggregate. The schema of the payload should have the same attributes as the `ReceiveAggregate`.
+The aggregate id for quotes should follow the format of `quote-{quoteId}`.
+
+#### logReceive
+This method is mapped to the business process where a user can receive a quote.
+
+When called, it should emit the following events:
+
+```ts
+interface QuoteReceivedEvent {
+    aggreagateId: string // the agg id of the quote
+    eventType: 'QUOTE_RECEIVED'
+    payload: {
+        receiveId: string
+    }
+}
+```
+
+```ts
+interface ReceiveCreatedEvent {
+    aggregateId: string // the agg id of the receive
+    eventType: 'RECEIVE_CREATED',
+    payload: {
+        id: string
+        quoteId: string
+
+        userId: string // the id of the user who received the quote
+        createDt: string // the timestamp that the quote was received
+
+        channelId: string
+        serverId: string
+    }
+}
+```
+
+The created receive object should have an aggregate id that follows this format: `receive-{receiveId}`.
