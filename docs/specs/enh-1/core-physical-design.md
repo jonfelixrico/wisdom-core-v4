@@ -1,11 +1,12 @@
 # enh-1 physical design -- core
 
 ## Introduction
-For saving the business data, we're going to be making use of event sourcing pattern. The reason why we're making use of the **event sourcing pattern** is so that we can have more freedom as to how we will implement the read side. The downside of this approach is that it's more complicated to implement because there's extra effort needed to create the read and the write side of the data.
+For saving the business data, we will be using the **event sourcing** pattern.
+
+We chose this pattern over a straightforward save-to-db approach is so that we can easily scale the bot out once we start getting more load. With this, we can deploy multiple read instances while deploying only a few write instances.
 
 ## Write side
-
-This section is the documentation for the read side of the data. We'll be creating aggregates to represent our buisiness objects (BO).
+This section will describe the aggregates that we'll be using for the read side.
 
 ### Aggregate overview
 #### Server (`ServerAggregate`)
